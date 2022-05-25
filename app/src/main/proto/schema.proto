@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "org.koitharu.verter";
+option java_multiple_files = true;
+
+message RemoteDevice {
+  string address = 1;
+  int32 port = 2;
+  string user = 3;
+  string password = 4;
+  string alias = 5;
+}

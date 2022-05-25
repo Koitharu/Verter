@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Verter</string>
+    <string name="no_device_selected">No device selected</string>
+	<string name="add_device">Add device</string>
+	<string name="address">Address</string>
+	<string name="port">Port</string>
+	<string name="user">User</string>
+	<string name="password">Password</string>
+	<string name="alias">Alias</string>
+	<string name="save">Save</string>
+    <string name="player">Player</string>
+	<string name="actions">Actions</string>
+	<string name="actions_placeholder">No actions created</string>
+	<string name="no_players">No players found</string>
+	<string name="add">Add</string>
+	<string name="add_action">Add action</string>
+	<string name="name">Name</string>
+	<string name="command">Command</string>
+	<string name="connection_failed">Connection failed</string>
+	<string name="no_devices_added">No devices added yet</string>
+    <string name="playerctl_not_available">playerctl is not available</string>
+	<string name="help">Help</string>
+</resources>
