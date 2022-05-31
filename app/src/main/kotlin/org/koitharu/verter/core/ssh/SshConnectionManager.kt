@@ -7,6 +7,7 @@ import com.trilead.ssh2.Connection
 import com.trilead.ssh2.ConnectionMonitor
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import org.koitharu.verter.BuildConfig
 import org.koitharu.verter.core.devices.RemoteDevice
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +19,11 @@ class SshConnectionManager @Inject constructor() : OnConnectionLostListener {
 	private val connections = ArrayMap<RemoteDevice, ConnectionWrapper>()
 
 	fun getConnection(device: RemoteDevice): SshConnection {
-		return connections.getOrPut(device) { createConnection(device) }
+		val connection = connections.getOrPut(device) { ConnectionWrapper(device, this) }
+		if (!connection.isConnectedOrConnecting) {
+			connection.connectAsync(coroutineScope)
+		}
+		return connection
 	}
 
 	fun closeConnection(device: RemoteDevice) {
@@ -26,14 +31,11 @@ class SshConnectionManager @Inject constructor() : OnConnectionLostListener {
 	}
 
 	override fun onConnectionLost(device: RemoteDevice, reason: Throwable?) {
+		if (BuildConfig.DEBUG) {
+			reason?.printStackTrace()
+		}
 		val connection = connections[device] ?: return
 		connection.connectAsync(coroutineScope)
-	}
-
-	private fun createConnection(device: RemoteDevice): ConnectionWrapper {
-		return ConnectionWrapper(device, this).apply {
-			connectAsync(coroutineScope)
-		}
 	}
 
 	private class ConnectionWrapper(
@@ -47,6 +49,9 @@ class SshConnectionManager @Inject constructor() : OnConnectionLostListener {
 		@Volatile
 		override var lastError: Throwable? = null
 			private set
+
+		val isConnectedOrConnecting: Boolean
+			get() = isConnected.value || connectJob?.isActive == true
 
 		private val errorHandler = CoroutineExceptionHandler { _, throwable ->
 			lastError = throwable

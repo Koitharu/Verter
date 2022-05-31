@@ -1,7 +1,5 @@
 package org.koitharu.verter.interactor
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.*
 import org.koitharu.verter.core.db.AppDatabase
 import org.koitharu.verter.core.db.entity.toDevice
@@ -9,6 +7,8 @@ import org.koitharu.verter.core.db.entity.toEntity
 import org.koitharu.verter.core.devices.RemoteDevice
 import org.koitharu.verter.core.ssh.SshConnection
 import org.koitharu.verter.core.ssh.SshConnectionManager
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 class DeviceInteractor @Inject constructor(
@@ -26,6 +26,14 @@ class DeviceInteractor @Inject constructor(
 
 	fun getCurrentConnectionAsFlow(): Flow<SshConnection?> {
 		return connectionStateFlow.asStateFlow()
+	}
+
+	suspend fun getLastConnectedDevice(): RemoteDevice? {
+		return database.devicesDao.getLastOrNull()?.toDevice()
+	}
+
+	suspend fun markDeviceConnected(device: RemoteDevice) {
+		database.devicesDao.setConnectedAt(device.id, System.currentTimeMillis())
 	}
 
 	fun getActiveConnectionAsFlow(): Flow<SshConnection?> {
@@ -46,7 +54,9 @@ class DeviceInteractor @Inject constructor(
 				connectionManager.closeConnection(it.deviceInfo)
 			}
 		}
-		return connectionManager.getConnection(device)
+		return connectionManager.getConnection(device).also {
+			connectionStateFlow.value = it
+		}
 	}
 
 	fun closeCurrentConnection() {
@@ -63,7 +73,7 @@ class DeviceInteractor @Inject constructor(
 	}
 
 	suspend fun addDevice(device: RemoteDevice) {
-		database.devicesDao.insert(device.toEntity())
+		database.devicesDao.insert(device.toEntity(connectedAt = 0L))
 	}
 
 	fun observeDevices(): Flow<List<RemoteDevice>> {

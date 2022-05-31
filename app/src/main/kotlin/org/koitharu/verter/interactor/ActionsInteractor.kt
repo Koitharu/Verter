@@ -1,5 +1,6 @@
 package org.koitharu.verter.interactor
 
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -7,7 +8,6 @@ import org.koitharu.verter.core.actions.RemoteAction
 import org.koitharu.verter.core.db.AppDatabase
 import org.koitharu.verter.core.db.entity.ActionEntity
 import org.koitharu.verter.core.db.entity.toAction
-import javax.inject.Inject
 
 class ActionsInteractor @Inject constructor(
 	private val deviceInteractor: DeviceInteractor,

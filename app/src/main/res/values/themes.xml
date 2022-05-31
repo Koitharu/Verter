@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
-	<style name="Theme.Verter" parent="android:Theme.Material.Light.NoActionBar">
-		<item name="android:colorPrimary">@color/md_theme_light_primary</item>
-		<item name="android:colorSecondary" tools:targetApi="n_mr1">@color/md_theme_light_secondary</item>
-		<item name="android:colorError" tools:targetApi="o">@color/md_theme_light_error</item>
-	</style>
+	<style name="Theme.Verter" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>

@@ -63,14 +63,10 @@ private fun MediaController(viewModel: MediaViewModel) {
 				horizontalAlignment = Alignment.CenterHorizontally,
 			) {
 				if (cover == null) {
-					Image(
-						painter = painterResource(R.drawable.ic_vinyl),
-						contentDescription = null,
+					Spacer(
 						modifier = Modifier.size(240.dp)
 							.padding(bottom = 16.dp)
-							.aspectRatio(1f),
-						contentScale = ContentScale.Inside,
-						alpha = 0.6f,
+							.aspectRatio(1f)
 					)
 				} else cover?.let {
 					Image(

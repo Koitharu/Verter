@@ -4,6 +4,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -13,6 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,7 +45,7 @@ fun ActionEditor(navController: NavController) {
 				modifier = Modifier.fillMaxWidth()
 					.fillMaxHeight()
 					.padding(padding)
-					.scrollable(ScrollState(0), Orientation.Vertical)
+					.scrollable(rememberScrollState(0), Orientation.Vertical)
 			) {
 				val fieldModifier = Modifier.fillMaxWidth().padding(
 					vertical = 6.dp,
@@ -56,7 +59,12 @@ fun ActionEditor(navController: NavController) {
 					value = name,
 					onValueChange = { name = it.trim() },
 					label = { Text(stringResource(R.string.name)) },
-					keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+					keyboardOptions = KeyboardOptions(
+						capitalization = KeyboardCapitalization.Sentences,
+						keyboardType = KeyboardType.Text,
+						autoCorrect = true,
+						imeAction = ImeAction.Next,
+					),
 					singleLine = true,
 				)
 				OutlinedTextField(
@@ -64,17 +72,24 @@ fun ActionEditor(navController: NavController) {
 					value = cmdline,
 					onValueChange = { cmdline = it },
 					label = { Text(stringResource(R.string.command)) },
-					keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+					keyboardOptions = KeyboardOptions(
+						capitalization = KeyboardCapitalization.None,
+						keyboardType = KeyboardType.Text,
+						autoCorrect = false,
+						imeAction = ImeAction.Done,
+					),
 					singleLine = true,
 				)
 				Spacer(
 					modifier = Modifier.weight(1f).padding(top = 12.dp)
 				)
+				val isDoneEnabled = name.isNotEmpty() && cmdline.isNotEmpty()
 				Button(
 					onClick = {
 						viewModel.save()
 					},
 					modifier = Modifier.fillMaxWidth().padding(12.dp),
+					enabled = isDoneEnabled,
 				) {
 					Text(stringResource(R.string.save))
 				}

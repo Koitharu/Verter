@@ -13,15 +13,17 @@ class DeviceEntity(
 	@ColumnInfo("user") val user: String,
 	@ColumnInfo("password") val password: String,
 	@ColumnInfo("alias") val alias: String?,
+	@ColumnInfo("connected_at") val connectedAt: Long,
 )
 
-fun RemoteDevice.toEntity() = DeviceEntity(
+fun RemoteDevice.toEntity(connectedAt: Long) = DeviceEntity(
 	id = id,
 	address = address,
 	port = port,
 	user = user,
 	password = password,
 	alias = alias,
+	connectedAt = connectedAt,
 )
 
 fun DeviceEntity.toDevice() = RemoteDevice(

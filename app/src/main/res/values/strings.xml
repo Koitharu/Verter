@@ -20,4 +20,7 @@
 	<string name="no_devices_added">No devices added yet</string>
     <string name="playerctl_not_available">playerctl is not available</string>
 	<string name="help">Help</string>
+    <string name="no_connection">No active connection</string>
+    <string name="close">Close</string>
+    <string name="execute">Execute</string>
 </resources>

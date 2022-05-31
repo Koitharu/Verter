@@ -16,3 +16,7 @@ fun Int.formatTimeSeconds(): String {
 }
 
 fun String.nullIfEmpty() = ifEmpty { null }
+
+fun String.lineCount(): Int {
+	return count { x -> x == '\n' }
+}

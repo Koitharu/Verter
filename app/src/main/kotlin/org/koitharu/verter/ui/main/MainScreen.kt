@@ -1,4 +1,4 @@
-package org.koitharu.verter.ui
+package org.koitharu.verter.ui.main
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -23,10 +23,9 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.koitharu.verter.R
+import org.koitharu.verter.ui.DevicesDropDownList
 import org.koitharu.verter.ui.actions.ActionsScreen
 import org.koitharu.verter.ui.common.EmptyState
-import org.koitharu.verter.ui.main.MainViewModel
-import org.koitharu.verter.ui.main.Screens
 import org.koitharu.verter.ui.media.MediaScreen
 
 @Composable
@@ -46,7 +45,12 @@ fun MainScreen() {
 			}
 		)
 	} else {
-		MainContent(viewModel)
+		val isDeviceConnected by viewModel.isConnectedDevice.collectAsState(false)
+		if (isDeviceConnected) {
+			MainContent(viewModel)
+		} else {
+			NoConnectionContent(viewModel)
+		}
 	}
 }
 
@@ -99,6 +103,27 @@ private fun MainContent(
 }
 
 @Composable
+private fun NoConnectionContent(
+	viewModel: MainViewModel
+) {
+	val snackbarState = remember { SnackbarHostState() }
+	Scaffold(
+		topBar = {
+			TopBar(viewModel, snackbarState)
+		},
+		snackbarHost = {
+			SnackbarHost(hostState = snackbarState)
+		},
+	) { innerPadding ->
+		EmptyState(
+			modifier = Modifier.padding(innerPadding),
+			icon = painterResource(R.drawable.ic_device_link),
+			text = stringResource(R.string.no_connection),
+		)
+	}
+}
+
+@Composable
 private fun TopBar(
 	viewModel: MainViewModel,
 	snackbarHostState: SnackbarHostState,
@@ -132,7 +157,7 @@ private fun TopBar(
 							painter = if (selectedItem == null) {
 								painterResource(R.drawable.ic_connection_none)
 							} else {
-								painterResource(R.drawable.ic_connection_ok)
+								painterResource(R.drawable.ic_device_link)
 							},
 							contentDescription = null,
 						)

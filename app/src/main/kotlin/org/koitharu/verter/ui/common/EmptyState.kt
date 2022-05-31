@@ -28,7 +28,7 @@ fun EmptyState(
 			painter = icon,
 			modifier = Modifier.size(64.dp).padding(bottom = 12.dp),
 			contentDescription = null,
-			tint = MaterialTheme.colorScheme.secondaryContainer,
+			tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
 		)
 	}
 	Text(

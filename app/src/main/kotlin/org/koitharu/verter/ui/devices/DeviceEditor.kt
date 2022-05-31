@@ -4,27 +4,30 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import kotlinx.coroutines.launch
 import org.koitharu.verter.R
-import org.koitharu.verter.core.devices.RemoteDevice
-import org.koitharu.verter.interactor.DeviceInteractor
 
 @Composable
-fun DeviceEditor(
+fun DeviceEditorScreen(
 	navController: NavController,
-	interactor: DeviceInteractor,
 ) {
+	val viewModel = hiltViewModel<DeviceEditorViewModel>()
 	Scaffold(
 		modifier = Modifier.imePadding(),
 		topBar = {
@@ -45,13 +48,13 @@ fun DeviceEditor(
 				modifier = Modifier.fillMaxWidth()
 					.fillMaxHeight()
 					.padding(padding)
-					.scrollable(ScrollState(0), Orientation.Vertical)
+					.scrollable(rememberScrollState(0), Orientation.Vertical)
 			) {
-				val coroutineScope = rememberCoroutineScope()
 				val fieldModifier = Modifier.fillMaxWidth().padding(
 					vertical = 6.dp,
 					horizontal = 12.dp,
 				)
+				val keyboardController = LocalSoftwareKeyboardController.current
 				var address by remember { mutableStateOf("") }
 				var port by remember { mutableStateOf(22) }
 				var user by remember { mutableStateOf("") }
@@ -63,7 +66,12 @@ fun DeviceEditor(
 					value = address,
 					onValueChange = { address = it.trim() },
 					label = { Text(stringResource(R.string.address)) },
-					keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+					keyboardOptions = KeyboardOptions(
+						capitalization = KeyboardCapitalization.None,
+						keyboardType = KeyboardType.Uri,
+						autoCorrect = false,
+						imeAction = ImeAction.Next,
+					),
 					singleLine = true,
 				)
 				OutlinedTextField(
@@ -71,7 +79,12 @@ fun DeviceEditor(
 					value = port.toString(),
 					onValueChange = { port = it.filter { x -> x.isDigit() }.toIntOrNull() ?: 0 },
 					label = { Text(stringResource(R.string.port)) },
-					keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+					keyboardOptions = KeyboardOptions(
+						capitalization = KeyboardCapitalization.None,
+						keyboardType = KeyboardType.Number,
+						autoCorrect = false,
+						imeAction = ImeAction.Next,
+					),
 					singleLine = true,
 				)
 				OutlinedTextField(
@@ -79,6 +92,12 @@ fun DeviceEditor(
 					value = user,
 					onValueChange = { user = it.trim() },
 					label = { Text(stringResource(R.string.user)) },
+					keyboardOptions = KeyboardOptions(
+						capitalization = KeyboardCapitalization.None,
+						keyboardType = KeyboardType.Text,
+						autoCorrect = false,
+						imeAction = ImeAction.Next,
+					),
 					singleLine = true,
 				)
 				OutlinedTextField(
@@ -87,7 +106,12 @@ fun DeviceEditor(
 					onValueChange = { password = it },
 					label = { Text(stringResource(R.string.password)) },
 					visualTransformation = PasswordVisualTransformation(),
-					keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+					keyboardOptions = KeyboardOptions(
+						capitalization = KeyboardCapitalization.None,
+						keyboardType = KeyboardType.Password,
+						autoCorrect = false,
+						imeAction = ImeAction.Next,
+					),
 					singleLine = true,
 				)
 				OutlinedTextField(
@@ -95,26 +119,37 @@ fun DeviceEditor(
 					value = alias,
 					onValueChange = { alias = it },
 					label = { Text(stringResource(R.string.alias)) },
+					keyboardOptions = KeyboardOptions(
+						capitalization = KeyboardCapitalization.Sentences,
+						keyboardType = KeyboardType.Text,
+						autoCorrect = true,
+						imeAction = ImeAction.Done,
+					),
+					keyboardActions = KeyboardActions {
+						keyboardController?.hide()
+					},
 					singleLine = true,
 				)
 				Spacer(
 					modifier = Modifier.weight(1f).padding(top = 12.dp)
 				)
+				val isLoading by viewModel.isLoading.collectAsState()
+				val isDoneEnabled = !isLoading &&
+					address.isNotEmpty() &&
+					port > 0 &&
+					user.isNotEmpty() &&
+					password.isNotEmpty()
 				Button(
 					onClick = {
-						coroutineScope.launch {
-							val device = RemoteDevice(
-								id = 0,
-								address = address,
-								port = port,
-								user = user,
-								password = password,
-								alias = alias.trim().takeUnless { it.isEmpty() }
-							)
-							interactor.addDevice(device)
-							navController.popBackStack()
-						}
+						viewModel.onAddDeviceClick(
+							address = address,
+							port = port,
+							user = user,
+							password = password,
+							alias = alias,
+						)
 					},
+					enabled = isDoneEnabled,
 					modifier = Modifier.fillMaxWidth().padding(12.dp),
 				) {
 					Text(stringResource(R.string.save))

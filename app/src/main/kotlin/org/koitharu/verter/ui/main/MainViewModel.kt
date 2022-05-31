@@ -31,6 +31,8 @@ class MainViewModel @Inject constructor(
 		it?.isEmpty() == true
 	}
 
+	val isConnectedDevice = deviceInteractor.getActiveConnectionAsFlow().map { it != null }
+
 	val selectedDevice = deviceInteractor.getCurrentDeviceAsFlow()
 
 	val isConnecting = MutableStateFlow(false)
@@ -42,8 +44,7 @@ class MainViewModel @Inject constructor(
 		connectionJob = viewModelScope.launch(errorHandler) {
 			isConnecting.value = true
 			try {
-				val devices = devices.filterNotNull().first()
-				val device = devices.lastOrNull() ?: return@launch
+				val device = deviceInteractor.getLastConnectedDevice() ?: return@launch
 				deviceInteractor.obtainConnection(device).awaitConnection()
 			} finally {
 				isConnecting.value = false
@@ -62,6 +63,7 @@ class MainViewModel @Inject constructor(
 			isConnecting.value = true
 			try {
 				deviceInteractor.obtainConnection(device).awaitConnection()
+				deviceInteractor.markDeviceConnected(device)
 			} finally {
 				isConnecting.value = false
 			}

@@ -92,7 +92,7 @@ fun VerterTheme(
 	if (!view.isInEditMode) {
 		SideEffect {
 			val window = (view.context as Activity).window
-			window.statusBarColor = colorScheme.secondaryContainer.toArgb()
+			window.statusBarColor = colorScheme.background.toArgb()
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
 				window.navigationBarDividerColor = Color.Transparent.toArgb()
 				val elevation = 3.dp

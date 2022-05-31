@@ -19,7 +19,7 @@ class ActionsViewModel @Inject constructor(
 ) : ViewModel() {
 
 	val actions = interactor.observeActions()
-		.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, null)
+		.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, null)
 
 	val runningActions = MutableStateFlow(emptySet<Int>())
 
@@ -32,11 +32,15 @@ class ActionsViewModel @Inject constructor(
 	fun onActionClick(action: RemoteAction) {
 		viewModelScope.launch {
 			runningActions.update { it + action.id }
-			val result = interactor.executeAction(action)
-			runningActions.update { it - action.id }
-			if (!result.isNullOrEmpty()) {
+			runCatching {
+				interactor.executeAction(action)
+			}.onSuccess { result ->
 				actionResult.emit(result)
+			}.onFailure { error ->
+				val msg = error.message
+				if (msg != null) actionResult.emit(msg)
 			}
+			runningActions.update { it - action.id }
 		}
 	}
 }
