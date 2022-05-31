@@ -1,45 +1,65 @@
 package org.koitharu.verter.interactor
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.*
 import org.koitharu.verter.core.db.AppDatabase
 import org.koitharu.verter.core.db.entity.toDevice
 import org.koitharu.verter.core.db.entity.toEntity
 import org.koitharu.verter.core.devices.RemoteDevice
-import org.koitharu.verter.core.ssh.RemoteDeviceSession
-import javax.inject.Inject
-import javax.inject.Singleton
+import org.koitharu.verter.core.ssh.SshConnection
+import org.koitharu.verter.core.ssh.SshConnectionManager
 
 @Singleton
 class DeviceInteractor @Inject constructor(
 	private val database: AppDatabase,
+	private val connectionManager: SshConnectionManager,
 ) {
 
-	private var sessionState = MutableStateFlow<RemoteDeviceSession?>(null)
-	private val selectedDevice = MutableStateFlow<RemoteDevice?>(null)
+	private val connectionStateFlow = MutableStateFlow<SshConnection?>(null)
 
-	val device: StateFlow<RemoteDevice?>
-		get() = selectedDevice
+	val currentConnection: SshConnection?
+		get() = connectionStateFlow.value
 
-	suspend fun setDevice(device: RemoteDevice?): Boolean {
-		sessionState.value?.close()
-		sessionState.value = device?.let { RemoteDeviceSession(it) }
-		val result = sessionState.value?.connect() ?: true
-		selectedDevice.value = device?.takeIf { result }
-		return result
+	val currentDevice: RemoteDevice?
+		get() = currentConnection?.deviceInfo
+
+	fun getCurrentConnectionAsFlow(): Flow<SshConnection?> {
+		return connectionStateFlow.asStateFlow()
 	}
 
-	suspend fun execute(cmdline: String): String? {
-		val session = getConnectedSession().first()
-		return session.execute(cmdline)
+	fun getActiveConnectionAsFlow(): Flow<SshConnection?> {
+		return connectionStateFlow.flatMapLatest { conn ->
+			conn?.getIsConnectedAsFlow()?.map { isConnected ->
+				if (isConnected) conn else null
+			} ?: flowOf(null)
+		}.distinctUntilChanged()
 	}
 
-	fun executeContinuously(cmdline: String): Flow<String> {
-		return getConnectedSession().flatMapLatest { it.executeContinuously(cmdline) }
+	fun getCurrentDeviceAsFlow(): Flow<RemoteDevice?> {
+		return connectionStateFlow.map { it?.deviceInfo }
 	}
 
-	suspend fun getFileContent(path: String): ByteArray {
-		val session = getConnectedSession().first()
-		return session.getFileContent(path)
+	fun obtainConnection(device: RemoteDevice): SshConnection {
+		currentConnection?.let {
+			if (it.deviceInfo != device) {
+				connectionManager.closeConnection(it.deviceInfo)
+			}
+		}
+		return connectionManager.getConnection(device)
+	}
+
+	fun closeCurrentConnection() {
+		currentConnection?.let {
+			connectionManager.closeConnection(it.deviceInfo)
+		}
+		connectionStateFlow.value = null
+	}
+
+	fun requireConnection(): SshConnection {
+		return checkNotNull(currentConnection) {
+			"Connection is not established"
+		}
 	}
 
 	suspend fun addDevice(device: RemoteDevice) {
@@ -50,9 +70,5 @@ class DeviceInteractor @Inject constructor(
 		return database.devicesDao.observeAll().map { list ->
 			list.map { x -> x.toDevice() }
 		}
-	}
-
-	private fun getConnectedSession(): Flow<RemoteDeviceSession> {
-		return sessionState.flatMapLatest { it?.getConnectedAsFlow() ?: emptyFlow() }.filterNotNull()
 	}
 }

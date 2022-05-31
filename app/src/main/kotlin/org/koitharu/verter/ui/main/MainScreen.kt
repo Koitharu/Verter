@@ -2,10 +2,7 @@ package org.koitharu.verter.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -108,7 +105,7 @@ private fun TopBar(
 ) {
 	var isExpanded by remember { mutableStateOf(false) }
 	val isBusy by viewModel.isConnecting.collectAsState()
-	val selectedItem by viewModel.selectedDevice.collectAsState()
+	val selectedItem by viewModel.selectedDevice.collectAsState(null)
 	val deviceList by viewModel.devices.collectAsState()
 	LaunchedEffect("errors") {
 		viewModel.errors.onEach {
@@ -125,16 +122,23 @@ private fun TopBar(
 						onClick = { isExpanded = true }
 					)
 				) {
-					Icon(
-						painter = when {
-							isBusy -> painterResource(R.drawable.ic_connection_pending)
-							selectedItem == null -> painterResource(R.drawable.ic_connection_none)
-							else -> painterResource(R.drawable.ic_connection_ok)
-						},
-						modifier = Modifier.padding(end = 8.dp),
-						contentDescription = null,
-					)
+					if (isBusy) {
+						CircularProgressIndicator(
+							modifier = Modifier.size(24.dp),
+							strokeWidth = 2.dp
+						)
+					} else {
+						Icon(
+							painter = if (selectedItem == null) {
+								painterResource(R.drawable.ic_connection_none)
+							} else {
+								painterResource(R.drawable.ic_connection_ok)
+							},
+							contentDescription = null,
+						)
+					}
 					Text(
+						modifier = Modifier.padding(start = 12.dp),
 						text = selectedItem?.displayName ?: stringResource(R.string.no_device_selected),
 						color = if (selectedItem != null) {
 							Color.Unspecified
@@ -153,14 +157,10 @@ private fun TopBar(
 			}
 		},
 		actions = {
-			if (isBusy) {
-				CircularProgressIndicator()
-			} else {
-				IconButton(
-					onClick = { isExpanded = !isExpanded },
-				) {
-					Icon(Icons.Filled.ArrowDropDown, "dropdown")
-				}
+			IconButton(
+				onClick = { isExpanded = !isExpanded },
+			) {
+				Icon(Icons.Filled.ArrowDropDown, "dropdown")
 			}
 		},
 		colors = TopAppBarDefaults.smallTopAppBarColors(

@@ -8,6 +8,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.koitharu.verter.core.devices.RemoteDevice
+import org.koitharu.verter.core.ssh.awaitConnection
 import org.koitharu.verter.interactor.DeviceInteractor
 import org.koitharu.verter.ui.common.NavBridge
 import org.koitharu.verter.util.ErrorHandler
@@ -30,7 +31,7 @@ class MainViewModel @Inject constructor(
 		it?.isEmpty() == true
 	}
 
-	val selectedDevice = deviceInteractor.device
+	val selectedDevice = deviceInteractor.getCurrentDeviceAsFlow()
 
 	val isConnecting = MutableStateFlow(false)
 
@@ -43,7 +44,7 @@ class MainViewModel @Inject constructor(
 			try {
 				val devices = devices.filterNotNull().first()
 				val device = devices.lastOrNull() ?: return@launch
-				deviceInteractor.setDevice(device)
+				deviceInteractor.obtainConnection(device).awaitConnection()
 			} finally {
 				isConnecting.value = false
 			}
@@ -60,7 +61,7 @@ class MainViewModel @Inject constructor(
 			prevJob.cancelAndJoin()
 			isConnecting.value = true
 			try {
-				deviceInteractor.setDevice(device)
+				deviceInteractor.obtainConnection(device).awaitConnection()
 			} finally {
 				isConnecting.value = false
 			}

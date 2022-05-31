@@ -15,7 +15,7 @@ class ActionsInteractor @Inject constructor(
 ) {
 
 	fun observeActions(): Flow<List<RemoteAction>> {
-		return deviceInteractor.device.flatMapLatest { device ->
+		return deviceInteractor.getCurrentDeviceAsFlow().flatMapLatest { device ->
 			if (device == null) {
 				database.actionsDao.observeAllCommon()
 			} else {
@@ -38,7 +38,7 @@ class ActionsInteractor @Inject constructor(
 		database.actionsDao.insert(entity)
 	}
 
-	suspend fun executeAction(action: RemoteAction): String? {
-		return deviceInteractor.execute(action.cmdline)
+	suspend fun executeAction(action: RemoteAction): String {
+		return deviceInteractor.requireConnection().execute(action.cmdline)
 	}
 }

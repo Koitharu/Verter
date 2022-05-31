@@ -92,8 +92,8 @@ class MediaViewModel @Inject constructor(
 
 	private fun checkRequirements() {
 		viewModelScope.launch(errorHandler) {
-			deviceInteractor.device.collect {
-				isAvailable.value = interactor.isPlayerCtlAvailable()
+			deviceInteractor.getActiveConnectionAsFlow().collect {
+				isAvailable.value = it == null || interactor.isPlayerCtlAvailable()
 			}
 		}
 	}
