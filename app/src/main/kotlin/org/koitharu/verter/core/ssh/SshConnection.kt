@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
 import org.koitharu.verter.core.devices.RemoteDevice
+import java.io.File
 
 interface SshConnection {
 
@@ -20,6 +21,8 @@ interface SshConnection {
 	fun executeContinuously(cmdline: String): Flow<String>
 
 	suspend fun getFileContent(path: String): ByteArray
+
+	suspend fun writeFile(file: File, destinationDir: String)
 }
 
 val SshConnection.isConnected: Boolean

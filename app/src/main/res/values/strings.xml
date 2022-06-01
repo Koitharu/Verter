@@ -24,4 +24,9 @@
     <string name="close">Close</string>
     <string name="execute">Execute</string>
     <string name="edit_action">Edit action</string>
+    <string name="files">Files</string>
+	<string name="settings">Settings</string>
+	<string name="file_transfer_text">Send files to remote device</string>
+	<string name="pick_file">Select file</string>
+	<string name="file_transferred">File transferred to %s</string>
 </resources>

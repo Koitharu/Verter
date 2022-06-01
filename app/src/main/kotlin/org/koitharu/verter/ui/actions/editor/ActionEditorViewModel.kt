@@ -80,13 +80,13 @@ class ActionEditorViewModel @Inject constructor(
 			if (actionId == NO_ID) {
 				interactor.createAction(
 					name = name.value,
-					cmdline = cmdline.value.text,
+					cmdline = cmdline.value.text.trimEnd(),
 				)
 			} else {
 				interactor.updateAction(
 					id = actionId,
 					name = name.value,
-					cmdline = cmdline.value.text,
+					cmdline = cmdline.value.text.trimEnd(),
 				)
 			}
 			navBridge.popBackStack()

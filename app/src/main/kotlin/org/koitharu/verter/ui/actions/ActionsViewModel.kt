@@ -19,7 +19,6 @@ class ActionsViewModel @Inject constructor(
 ) : ViewModel() {
 
 	val actions = interactor.observeActions()
-// 		.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, null)
 
 	val runningActions = MutableStateFlow(emptySet<Int>())
 

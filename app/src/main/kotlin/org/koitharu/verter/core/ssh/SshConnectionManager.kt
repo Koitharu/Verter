@@ -9,6 +9,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.koitharu.verter.BuildConfig
 import org.koitharu.verter.core.devices.RemoteDevice
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -79,6 +80,10 @@ class SshConnectionManager @Inject constructor() : OnConnectionLostListener {
 
 		override suspend fun getFileContent(path: String): ByteArray = runInterruptible(Dispatchers.IO) {
 			connection.getFileContent(path)
+		}
+
+		override suspend fun writeFile(file: File, destinationDir: String) = runInterruptible(Dispatchers.IO) {
+			connection.writeFile(file, destinationDir)
 		}
 
 		fun connectAsync(scope: CoroutineScope) {

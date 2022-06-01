@@ -25,7 +25,9 @@ import kotlinx.coroutines.flow.onEach
 import org.koitharu.verter.R
 import org.koitharu.verter.ui.actions.ActionsScreen
 import org.koitharu.verter.ui.common.EmptyState
+import org.koitharu.verter.ui.files.FilesScreen
 import org.koitharu.verter.ui.media.MediaScreen
+import org.koitharu.verter.ui.settings.SettingsScreen
 
 @Composable
 fun MainScreen() {
@@ -97,6 +99,8 @@ private fun MainContent(
 		NavHost(childNavController, startDestination = Screens.ACTIONS.route, Modifier.padding(innerPadding)) {
 			composable(Screens.ACTIONS.route) { ActionsScreen(snackbarState) }
 			composable(Screens.MEDIA.route) { MediaScreen(snackbarState) }
+			composable(Screens.FILES.route) { FilesScreen(snackbarState) }
+			composable(Screens.SETTINGS.route) { SettingsScreen(snackbarState) }
 		}
 	}
 }

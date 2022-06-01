@@ -11,5 +11,7 @@ enum class Screens(
 ) {
 	ACTIONS("actions", R.string.actions, R.drawable.ic_actions),
 	MEDIA("media", R.string.player, R.drawable.ic_media_player),
+	FILES("files", R.string.files, R.drawable.ic_file_transfer),
+	SETTINGS("settings", R.string.settings, R.drawable.ic_settings),
 	;
 }

@@ -5,6 +5,7 @@ import com.trilead.ssh2.Connection
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import java.io.ByteArrayOutputStream
+import java.io.File
 
 @Throws(RemoteProcessException::class)
 fun Connection.execute(cmdline: String): String {
@@ -58,4 +59,9 @@ fun Connection.getFileContent(path: String): ByteArray {
 	val output = ByteArrayOutputStream()
 	client.get(path, output)
 	return output.toByteArray()
+}
+
+fun Connection.writeFile(file: File, targetDirectory: String) {
+	val client = createSCPClient()
+	client.put(file.absolutePath, targetDirectory)
 }
