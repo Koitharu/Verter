@@ -23,7 +23,6 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.koitharu.verter.R
-import org.koitharu.verter.ui.DevicesDropDownList
 import org.koitharu.verter.ui.actions.ActionsScreen
 import org.koitharu.verter.ui.common.EmptyState
 import org.koitharu.verter.ui.media.MediaScreen

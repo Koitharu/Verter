@@ -8,6 +8,7 @@ import org.koitharu.verter.core.actions.RemoteAction
 import org.koitharu.verter.core.db.AppDatabase
 import org.koitharu.verter.core.db.entity.ActionEntity
 import org.koitharu.verter.core.db.entity.toAction
+import org.koitharu.verter.core.ssh.tryExecute
 import javax.inject.Inject
 
 class ActionsInteractor @Inject constructor(
@@ -65,5 +66,14 @@ class ActionsInteractor @Inject constructor(
 
 	suspend fun executeAction(action: RemoteAction): String {
 		return deviceInteractor.requireConnection().execute(action.cmdline)
+	}
+
+	suspend fun getCompletion(cmdline: String): List<String>? {
+		if (cmdline.startsWith('-')) {
+			return null
+		}
+		val conn = deviceInteractor.currentConnection ?: return null
+		val res = conn.tryExecute("compgen -c $cmdline").getOrNull() ?: return null
+		return res.lines().distinct()
 	}
 }

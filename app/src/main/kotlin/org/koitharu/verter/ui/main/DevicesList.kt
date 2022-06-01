@@ -1,4 +1,4 @@
-package org.koitharu.verter.ui
+package org.koitharu.verter.ui.main
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentWidth
