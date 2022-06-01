@@ -15,7 +15,7 @@ import org.koitharu.verter.core.actions.RemoteAction
 	],
 	indices = [Index("device_id")],
 )
-class ActionEntity(
+data class ActionEntity(
 	@ColumnInfo("id") @PrimaryKey(autoGenerate = true) val id: Int,
 	@ColumnInfo("name") val name: String,
 	@ColumnInfo("cmdline") val cmdline: String,

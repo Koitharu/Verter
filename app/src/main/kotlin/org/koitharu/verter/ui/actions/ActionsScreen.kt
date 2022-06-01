@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -214,6 +215,13 @@ private fun SelectionActionMode(
 				style = MaterialTheme.typography.headlineSmall,
 			)
 			Spacer(Modifier.weight(1f))
+			if (selection.size == 1) {
+				IconButton(
+					onClick = { viewModel.onEditActionClick() },
+				) {
+					Icon(Icons.Outlined.Edit, null)
+				}
+			}
 			IconButton(
 				onClick = { viewModel.onDeleteSelectedClick() },
 			) {

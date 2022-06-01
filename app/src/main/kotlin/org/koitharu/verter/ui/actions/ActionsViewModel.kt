@@ -3,7 +3,6 @@ package org.koitharu.verter.ui.actions
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -11,6 +10,7 @@ import kotlinx.coroutines.launch
 import org.koitharu.verter.core.actions.RemoteAction
 import org.koitharu.verter.interactor.ActionsInteractor
 import org.koitharu.verter.ui.common.NavBridge
+import javax.inject.Inject
 
 @HiltViewModel
 class ActionsViewModel @Inject constructor(
@@ -28,7 +28,7 @@ class ActionsViewModel @Inject constructor(
 	val actionResult = MutableSharedFlow<String>(extraBufferCapacity = 1)
 
 	fun onAddClick() {
-		navBridge.navigateTo(NavBridge.Target.ACTION_EDITOR)
+		navBridge.navigateTo(NavBridge.Target.ActionEditor())
 	}
 
 	fun onActionClick(action: RemoteAction) {
@@ -52,6 +52,12 @@ class ActionsViewModel @Inject constructor(
 			selectedActions.value = emptySet()
 			interactor.deleteActions(selectedItems)
 		}
+	}
+
+	fun onEditActionClick() {
+		val actionId = selectedActions.value.singleOrNull()
+		selectedActions.value = emptySet()
+		navBridge.navigateTo(NavBridge.Target.ActionEditor(actionId ?: return))
 	}
 
 	fun clearSelection() {

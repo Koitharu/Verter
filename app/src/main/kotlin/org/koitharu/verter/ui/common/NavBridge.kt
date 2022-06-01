@@ -37,9 +37,16 @@ class NavBridge @Inject constructor() {
 		}
 	}
 
-	enum class Target(val route: String) {
-		MAIN("main"),
-		DEVICE_EDITOR("add_device"),
-		ACTION_EDITOR("add_action"),
+	sealed class Target(val route: String) {
+		object Main : Target(MAIN)
+		object DeviceEditor : Target("add_device")
+		class ActionEditor(actionId: Int = 0) : Target("add_action/$actionId")
+
+		companion object {
+
+			const val MAIN = "main"
+			const val DEVICE_EDITOR = "add_device"
+			const val ACTION_EDITOR = "add_action/{action_id}"
+		}
 	}
 }

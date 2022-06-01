@@ -26,10 +26,13 @@ class MainActivity : ComponentActivity() {
 			VerterTheme(dynamicColor = true) {
 				val navController = rememberNavController()
 				navBridge.bind(navController)
-				NavHost(navController = navController, startDestination = NavBridge.Target.MAIN.route) {
-					composable(NavBridge.Target.MAIN.route) { MainScreen() }
-					composable(NavBridge.Target.DEVICE_EDITOR.route) { DeviceEditorScreen(navController) }
-					composable(NavBridge.Target.ACTION_EDITOR.route) { ActionEditor(navController) }
+				NavHost(navController = navController, startDestination = NavBridge.Target.MAIN) {
+					composable(NavBridge.Target.MAIN) { MainScreen() }
+					composable(NavBridge.Target.DEVICE_EDITOR) { DeviceEditorScreen(navController) }
+					composable(NavBridge.Target.ACTION_EDITOR) { backStackEntry ->
+						val actionId = backStackEntry.arguments?.getString("action_id")?.toIntOrNull() ?: 0
+						ActionEditor(navController, actionId)
+					}
 				}
 			}
 		}

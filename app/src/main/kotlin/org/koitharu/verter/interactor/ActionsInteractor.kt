@@ -39,6 +39,21 @@ class ActionsInteractor @Inject constructor(
 		database.actionsDao.insert(entity)
 	}
 
+	suspend fun updateAction(id: Int, name: String, cmdline: String) {
+		database.withTransaction {
+			val dao = database.actionsDao
+			val entity = dao.get(id).copy(
+				name = name,
+				cmdline = cmdline,
+			)
+			dao.update(entity)
+		}
+	}
+
+	suspend fun getAction(id: Int): RemoteAction {
+		return database.actionsDao.get(id).toAction()
+	}
+
 	suspend fun deleteActions(ids: Collection<Int>) {
 		val dao = database.actionsDao
 		database.withTransaction {

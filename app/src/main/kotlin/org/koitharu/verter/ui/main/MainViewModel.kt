@@ -53,7 +53,7 @@ class MainViewModel @Inject constructor(
 	}
 
 	fun onAddDeviceClick() {
-		navBridge.navigateTo(NavBridge.Target.DEVICE_EDITOR)
+		navBridge.navigateTo(NavBridge.Target.DeviceEditor)
 	}
 
 	fun switchDevice(device: RemoteDevice) {

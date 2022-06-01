@@ -1,6 +1,5 @@
 package org.koitharu.verter.ui.actions.editor
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
@@ -22,15 +21,26 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import org.koitharu.verter.R
 
+private const val NO_ID = 0
+
 @Composable
-fun ActionEditor(navController: NavController) {
+fun ActionEditor(navController: NavController, actionId: Int) {
 	val viewModel = hiltViewModel<ActionEditorViewModel>()
+	viewModel.init(actionId)
 	Scaffold(
 		modifier = Modifier.imePadding(),
 		topBar = {
 			SmallTopAppBar(
 				title = {
-					Text(stringResource(R.string.add_action))
+					Text(
+						stringResource(
+							if (actionId == NO_ID) {
+								R.string.add_action
+							} else {
+								R.string.edit_action
+							}
+						)
+					)
 				},
 				navigationIcon = {
 					IconButton(
@@ -51,12 +61,14 @@ fun ActionEditor(navController: NavController) {
 					vertical = 6.dp,
 					horizontal = 12.dp,
 				)
+				val isBusy by viewModel.isBusy
 				var name by viewModel.name
 				var cmdline by viewModel.cmdline
 
 				OutlinedTextField(
 					modifier = fieldModifier,
 					value = name,
+					enabled = !isBusy,
 					onValueChange = { name = it.trim() },
 					label = { Text(stringResource(R.string.name)) },
 					keyboardOptions = KeyboardOptions(
@@ -70,6 +82,7 @@ fun ActionEditor(navController: NavController) {
 				OutlinedTextField(
 					modifier = fieldModifier,
 					value = cmdline,
+					enabled = !isBusy,
 					onValueChange = { cmdline = it },
 					label = { Text(stringResource(R.string.command)) },
 					keyboardOptions = KeyboardOptions(
@@ -83,7 +96,7 @@ fun ActionEditor(navController: NavController) {
 				Spacer(
 					modifier = Modifier.weight(1f).padding(top = 12.dp)
 				)
-				val isDoneEnabled = name.isNotEmpty() && cmdline.isNotEmpty()
+				val isDoneEnabled = !isBusy && name.isNotEmpty() && cmdline.isNotEmpty()
 				Button(
 					onClick = {
 						viewModel.save()
