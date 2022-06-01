@@ -3,14 +3,14 @@ package org.koitharu.verter.ui.actions
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
 import org.koitharu.verter.core.actions.RemoteAction
 import org.koitharu.verter.interactor.ActionsInteractor
 import org.koitharu.verter.ui.common.NavBridge
-import javax.inject.Inject
 
 @HiltViewModel
 class ActionsViewModel @Inject constructor(
@@ -19,9 +19,11 @@ class ActionsViewModel @Inject constructor(
 ) : ViewModel() {
 
 	val actions = interactor.observeActions()
-		.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, null)
+// 		.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, null)
 
 	val runningActions = MutableStateFlow(emptySet<Int>())
+
+	val selectedActions = MutableStateFlow(emptySet<Int>())
 
 	val actionResult = MutableSharedFlow<String>(extraBufferCapacity = 1)
 
@@ -41,6 +43,41 @@ class ActionsViewModel @Inject constructor(
 				if (msg != null) actionResult.emit(msg)
 			}
 			runningActions.update { it - action.id }
+		}
+	}
+
+	fun onDeleteSelectedClick() {
+		viewModelScope.launch {
+			val selectedItems = selectedActions.value
+			selectedActions.value = emptySet()
+			interactor.deleteActions(selectedItems)
+		}
+	}
+
+	fun clearSelection() {
+		selectedActions.value = emptySet()
+	}
+
+	fun onActionCardClick(item: RemoteAction) {
+		toggleSelection(item, canStart = false)
+	}
+
+	fun onActionCardLongClick(item: RemoteAction) {
+		toggleSelection(item, canStart = true)
+	}
+
+	private fun toggleSelection(item: RemoteAction, canStart: Boolean) {
+		val selected = selectedActions.value
+		if (selected.isEmpty()) {
+			if (canStart) {
+				selectedActions.value = setOf(item.id)
+			}
+			return
+		}
+		if (item.id in selected) {
+			selectedActions.value = selected - item.id
+		} else {
+			selectedActions.value = selected + item.id
 		}
 	}
 }

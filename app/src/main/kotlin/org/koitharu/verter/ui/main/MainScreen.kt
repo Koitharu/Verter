@@ -149,11 +149,12 @@ private fun TopBar(
 				) {
 					if (isBusy) {
 						CircularProgressIndicator(
-							modifier = Modifier.size(24.dp),
+							modifier = Modifier.size(24.dp).padding(top = 4.dp),
 							strokeWidth = 2.dp
 						)
 					} else {
 						Icon(
+							modifier = Modifier.padding(top = 4.dp),
 							painter = if (selectedItem == null) {
 								painterResource(R.drawable.ic_connection_none)
 							} else {

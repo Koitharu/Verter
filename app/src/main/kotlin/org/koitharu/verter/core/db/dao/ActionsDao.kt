@@ -17,4 +17,7 @@ interface ActionsDao {
 
 	@Insert
 	suspend fun insert(entity: ActionEntity)
+
+	@Query("DELETE FROM actions WHERE id = :id")
+	suspend fun delete(id: Int)
 }

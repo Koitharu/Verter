@@ -1,6 +1,6 @@
 package org.koitharu.verter.interactor
 
-import javax.inject.Inject
+import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -8,6 +8,7 @@ import org.koitharu.verter.core.actions.RemoteAction
 import org.koitharu.verter.core.db.AppDatabase
 import org.koitharu.verter.core.db.entity.ActionEntity
 import org.koitharu.verter.core.db.entity.toAction
+import javax.inject.Inject
 
 class ActionsInteractor @Inject constructor(
 	private val deviceInteractor: DeviceInteractor,
@@ -36,6 +37,15 @@ class ActionsInteractor @Inject constructor(
 			orderKey = 0,
 		)
 		database.actionsDao.insert(entity)
+	}
+
+	suspend fun deleteActions(ids: Collection<Int>) {
+		val dao = database.actionsDao
+		database.withTransaction {
+			for (id in ids) {
+				dao.delete(id)
+			}
+		}
 	}
 
 	suspend fun executeAction(action: RemoteAction): String {
